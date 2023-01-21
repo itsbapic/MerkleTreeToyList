@@ -38,33 +38,41 @@ async function main() {
   const members = await guild.members.fetch() // returns Collection
   const members = await fetchmembs()
   console.log(members);
+
+  async function fetchmembs() {
+  const guild = client.guilds.cache.get(911045401006719006);
+  const members = await guild.members.fetch();
+  return members;
+}
+
   */
 
-  // TODO: how do we prove to the server we're on the nice list? 
+  // How do we prove to the server we're on the nice list? 
   // We prove it by creating a merkle tree from our list:
   const merkleTreeList = new MerkleTree(niceList);
-  // Then get the root of our Merkle Tree
-  const root = merkleTreeList.getRoot();
-  console.log(root);
-  // Name to verify
+
+  // and have a name to verify by having user input
   const name = prompt("What is your name? ");
 
+  // Get index of inputted name in list
   const index = niceList.findIndex(n => n === name);
+
+  // Create the proof
   const proof = merkleTreeList.getProof(index);
-  console.log(proof);
+
+  // Log the proof
+  console.log(`Proof:${JSON.stringify(proof, null, 4)}`);
+
+  // Log the rounded up value of the log2 of List length
+  console.log(`Log2 of list length: ${Math.ceil(Math.log2(niceList.length))}`);
 
   const { data: gift } = await axios.post(`${serverUrl}/gift`, {
     proof: proof,
     name: name
   });
 
+  // Success/Fail of inputted user!
   console.log({ gift });
-}
-
-async function fetchmembs() {
-  const guild = client.guilds.cache.get(911045401006719006);
-  const members = await guild.members.fetch();
-  return members;
 }
 
 main();
